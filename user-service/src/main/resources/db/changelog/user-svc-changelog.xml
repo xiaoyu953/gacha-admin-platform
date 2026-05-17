@@ -35,4 +35,20 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="2" author="migration">
+        <createTable tableName="gacha_customer_exp_new" remarks="经验值等级配置">
+            <column name="level" type="INT" remarks="等级">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="exp" type="INT" remarks="升级所需经验值">
+                <constraints nullable="false"/>
+            </column>
+            <column name="prize_id" type="INT" remarks="升级奖励道具ID"/>
+            <column name="created_at" type="DATETIME(3)"
+                    defaultValueComputed="CURRENT_TIMESTAMP(3)"/>
+            <column name="updated_at" type="DATETIME(3)"
+                    defaultValueComputed="CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)"/>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>
