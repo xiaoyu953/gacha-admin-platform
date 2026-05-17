@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- TagType: 标签类型 -->
+    <changeSet id="1" author="migration">
+        <createTable tableName="gacha_tag_type" remarks="标签类型">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="主键ID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(64)" remarks="类型名称">
+                <constraints nullable="false"/>
+            </column>
+            <column name="weight" type="INT" defaultValueNumeric="0" remarks="排序权重"/>
+            <column name="description" type="VARCHAR(255)" remarks="描述"/>
+            <column name="created_at" type="DATETIME(3)"
+                    defaultValueComputed="CURRENT_TIMESTAMP(3)"/>
+            <column name="updated_at" type="DATETIME(3)"
+                    defaultValueComputed="CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)"/>
+            <column name="deleted_at" type="DATETIME(3)" remarks="软删除"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Tag: 标签 -->
+    <changeSet id="2" author="migration">
+        <createTable tableName="gacha_tag" remarks="标签">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="主键ID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(128)" remarks="标签名称">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(255)" remarks="描述"/>
+            <column name="type_id" type="BIGINT" remarks="类型ID"/>
+            <column name="weight" type="INT" defaultValueNumeric="0" remarks="排序权重"/>
+            <column name="created_at" type="DATETIME(3)"
+                    defaultValueComputed="CURRENT_TIMESTAMP(3)"/>
+            <column name="updated_at" type="DATETIME(3)"
+                    defaultValueComputed="CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)"/>
+            <column name="deleted_at" type="DATETIME(3)" remarks="软删除"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Advert: 广告 -->
+    <changeSet id="3" author="migration">
+        <createTable tableName="gacha_advert" remarks="广告">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="主键ID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)" remarks="广告标题">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(64)" remarks="广告类型"/>
+            <column name="created_at" type="DATETIME(3)"
+                    defaultValueComputed="CURRENT_TIMESTAMP(3)"/>
+            <column name="updated_at" type="DATETIME(3)"
+                    defaultValueComputed="CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)"/>
+            <column name="deleted_at" type="DATETIME(3)" remarks="软删除"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Banner -->
+    <changeSet id="4" author="migration">
+        <createTable tableName="gacha_banner" remarks="Banner管理">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="主键ID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)" remarks="标题"/>
+            <column name="image_url" type="VARCHAR(512)" remarks="图片URL"/>
+            <column name="target_type" type="INT" remarks="跳转类型"/>
+            <column name="target_data" type="VARCHAR(512)" remarks="跳转数据"/>
+            <column name="platform" type="VARCHAR(64)" remarks="平台: all/ios/android"/>
+            <column name="block_id" type="INT" remarks="展示位置"/>
+            <column name="weight" type="INT" defaultValueNumeric="0" remarks="排序权重"/>
+            <column name="effective_time" type="DATETIME(3)" remarks="生效时间"/>
+            <column name="expire_time" type="DATETIME(3)" remarks="过期时间"/>
+            <column name="status" type="INT" defaultValueNumeric="1" remarks="状态: 1启用/0禁用"/>
+            <column name="created_at" type="DATETIME(3)"
+                    defaultValueComputed="CURRENT_TIMESTAMP(3)"/>
+            <column name="updated_at" type="DATETIME(3)"
+                    defaultValueComputed="CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)"/>
+            <column name="deleted_at" type="DATETIME(3)" remarks="软删除"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

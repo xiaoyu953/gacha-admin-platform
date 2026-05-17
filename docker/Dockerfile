@@ -9,6 +9,14 @@ COPY pom.xml .
 COPY common-lib/pom.xml common-lib/
 COPY ${SERVICE_NAME}/pom.xml ${SERVICE_NAME}/
 
+# Create stub pom.xml for modules not being built so parent POM can resolve all children
+RUN for mod in auth-service gateway-service product-service order-service machine-service activity-service user-service content-service trade-service; do \
+      if [ "$mod" != "${SERVICE_NAME}" ]; then \
+        mkdir -p $mod && \
+        echo '<project><modelVersion>4.0.0</modelVersion><parent><groupId>com.gacha</groupId><artifactId>gacha-admin-platform</artifactId><version>1.0.0-SNAPSHOT</version></parent><artifactId>'$mod'</artifactId></project>' > $mod/pom.xml; \
+      fi; \
+    done
+
 RUN mvn dependency:go-offline -pl common-lib,${SERVICE_NAME} -q || true
 
 COPY common-lib/src common-lib/src/

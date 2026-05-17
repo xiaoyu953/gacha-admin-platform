@@ -23,6 +23,10 @@ spring:
           uri: http://127.0.0.1:8100
           predicates:
             - Path=/api/admin/users/**,/api/admin/roles/**,/api/admin/permissions/**
+        - id: content-service
+          uri: http://127.0.0.1:8101
+          predicates:
+            - Path=/api/admin/tag-types/**,/api/admin/tags/**,/api/admin/adverts/**,/api/admin/banners/**
         - id: legacy-php
           uri: http://localhost:8001
           predicates:
