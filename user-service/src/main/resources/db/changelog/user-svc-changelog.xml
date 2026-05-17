@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="1" author="migration">
+        <createTable tableName="gacha_customer" remarks="C端用户">
+            <column name="customer_id" type="INT" remarks="用户ID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nick" type="VARCHAR(128)" remarks="昵称"/>
+            <column name="mobile" type="VARCHAR(16)" remarks="手机号"/>
+            <column name="wechat_name" type="VARCHAR(128)" remarks="微信昵称"/>
+            <column name="image" type="VARCHAR(512)" remarks="头像URL"/>
+            <column name="gold" type="DECIMAL(10,2)" defaultValueNumeric="0" remarks="余额"/>
+            <column name="points" type="INT" defaultValueNumeric="0" remarks="积分"/>
+            <column name="exp" type="INT" defaultValueNumeric="0" remarks="经验值"/>
+            <column name="level" type="INT" defaultValueNumeric="0" remarks="等级"/>
+            <column name="sign_in" type="INT" defaultValueNumeric="0" remarks="月签到天数"/>
+            <column name="luck" type="INT" defaultValueNumeric="0" remarks="幸运值"/>
+            <column name="once_cny" type="INT" defaultValueNumeric="0" remarks="单次充值"/>
+            <column name="cny" type="INT" defaultValueNumeric="0" remarks="累计充值"/>
+            <column name="sex" type="TINYINT" defaultValueNumeric="0" remarks="性别: 0未知/1男/2女"/>
+            <column name="channel" type="INT" remarks="注册渠道"/>
+            <column name="advert" type="INT" remarks="注册广告来源"/>
+            <column name="subscription" type="TINYINT" defaultValueNumeric="0" remarks="订阅标识"/>
+            <column name="ban" type="TINYINT" defaultValueNumeric="0" remarks="登录封禁: 0正常/1封禁"/>
+            <column name="created_at" type="DATETIME(3)"
+                    defaultValueComputed="CURRENT_TIMESTAMP(3)"/>
+            <column name="updated_at" type="DATETIME(3)"
+                    defaultValueComputed="CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)"/>
+            <column name="deleted_at" type="DATETIME(3)" remarks="软删除"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
