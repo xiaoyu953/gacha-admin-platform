@@ -1,0 +1,162 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: registry.example.com/gacha
+  DOCKER_BUILDKIT: 1
+
+jobs:
+  # ==================== Backend ====================
+
+  java-build-test:
+    name: Java — Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Build & run tests
+        run: mvn verify -pl common-lib,auth-service,gateway-service -DskipTests=false --batch-mode
+
+  # ==================== Frontend ====================
+
+  frontend-build:
+    name: Frontend — Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: admin-frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: admin-frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx vue-tsc --noEmit
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-frontend-dist
+          path: admin-frontend/dist/
+
+  # ==================== Docker ====================
+
+  docker-build-push:
+    name: Docker — Build & Push
+    needs: [java-build-test, frontend-build]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - auth-service
+          - gateway-service
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download frontend dist (for admin-frontend only)
+        if: matrix.service == 'admin-frontend'
+        uses: actions/download-artifact@v4
+        with:
+          name: admin-frontend-dist
+          path: admin-frontend/dist/
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ matrix.service }}
+          tags: |
+            type=sha,prefix=
+            type=ref,event=branch
+            type=raw,value=latest
+
+      - name: Login to registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build & push Java service
+        if: matrix.service != 'admin-frontend'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile
+          build-args: SERVICE_NAME=${{ matrix.service }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build & push frontend
+        if: matrix.service == 'admin-frontend'
+        uses: docker/build-push-action@v5
+        with:
+          context: admin-frontend
+          file: admin-frontend/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ==================== Deploy to K8s ====================
+
+  deploy:
+    name: Deploy to Kubernetes
+    needs: docker-build-push
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - auth-service
+          - gateway-service
+          - admin-frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: "latest"
+
+      - name: Configure kubeconfig
+        uses: azure/k8s-set-context@v4
+        with:
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Deploy
+        uses: azure/k8s-deploy@v5
+        with:
+          manifests: |
+            k8s/${{ matrix.service == 'admin-frontend' && 'frontend' || matrix.service }}/deployment.yaml
+            k8s/${{ matrix.service == 'admin-frontend' && 'frontend' || matrix.service }}/service.yaml
+          images: |
+            ${{ env.REGISTRY }}/${{ matrix.service }}:${{ github.sha }}

@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: gacha-system
+  labels:
+    app: auth-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+        - name: auth-service
+          image: registry.example.com/gacha/auth-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8100
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: gacha-common-config
+            - secretRef:
+                name: gacha-credentials
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://$(MYSQL_HOST):$(MYSQL_PORT)/auth_svc?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai"
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: gacha-credentials
+                  key: mysql-username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: gacha-credentials
+                  key: mysql-root-password
+            - name: SPRING_CLOUD_NACOS_DISCOVERY_SERVER-ADDR
+              valueFrom:
+                configMapKeyRef:
+                  name: gacha-common-config
+                  key: NACOS_SERVER_ADDR
+            - name: SPRING_REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: gacha-common-config
+                  key: REDIS_HOST
+            - name: JAVA_OPTS
+              value: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+          resources:
+            requests:
+              cpu: 200m
+              memory: 384Mi
+            limits:
+              cpu: 500m
+              memory: 768Mi
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8100
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8100
+            initialDelaySeconds: 60
+            periodSeconds: 20
+      restartPolicy: Always

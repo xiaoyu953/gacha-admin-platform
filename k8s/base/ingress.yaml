@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gacha-ingress
+  namespace: gacha-system
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: admin.gacha.local
+      http:
+        paths:
+          # API routes to Gateway
+          - path: /api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: gateway-service
+                port:
+                  number: 8080
+          # Catch-all: frontend SPA
+          - path: /(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: admin-frontend
+                port:
+                  number: 80

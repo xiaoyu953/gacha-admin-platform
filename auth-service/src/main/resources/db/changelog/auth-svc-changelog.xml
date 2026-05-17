@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="1" author="migration">
+        <createTable tableName="sys_user" remarks="管理后台用户">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="主键ID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(64)" remarks="用户名">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="VARCHAR(256)" remarks="密码(bcrypt加密)"/>
+            <column name="real_name" type="VARCHAR(64)" remarks="真实姓名"/>
+            <column name="email" type="VARCHAR(128)" remarks="邮箱"/>
+            <column name="status" type="TINYINT" defaultValueNumeric="1" remarks="状态 0:禁用 1:启用"/>
+            <column name="customer_id" type="BIGINT" remarks="关联的C端用户ID"/>
+            <column name="created_at" type="DATETIME(3)" defaultValueComputed="CURRENT_TIMESTAMP(3)"/>
+            <column name="updated_at" type="DATETIME(3)" defaultValueComputed="CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)"/>
+            <column name="deleted_at" type="DATETIME(3)" remarks="软删除"/>
+        </createTable>
+
+        <createTable tableName="sys_role" remarks="角色">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="role_name" type="VARCHAR(64)" remarks="角色名称"/>
+            <column name="role_code" type="VARCHAR(64)" remarks="角色编码">
+                <constraints unique="true"/>
+            </column>
+            <column name="description" type="VARCHAR(256)" remarks="描述"/>
+            <column name="created_at" type="DATETIME(3)" defaultValueComputed="CURRENT_TIMESTAMP(3)"/>
+            <column name="updated_at" type="DATETIME(3)" defaultValueComputed="CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)"/>
+            <column name="deleted_at" type="DATETIME(3)"/>
+        </createTable>
+
+        <createTable tableName="sys_permission" remarks="权限/菜单">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="perm_name" type="VARCHAR(64)" remarks="权限名称"/>
+            <column name="perm_code" type="VARCHAR(128)" remarks="权限编码"/>
+            <column name="perm_type" type="VARCHAR(20)" remarks="类型: menu/button/api"/>
+            <column name="parent_id" type="BIGINT" remarks="父级ID"/>
+            <column name="path" type="VARCHAR(256)" remarks="前端路由"/>
+            <column name="icon" type="VARCHAR(128)" remarks="图标"/>
+            <column name="sort_order" type="INT" defaultValueNumeric="0"/>
+            <column name="created_at" type="DATETIME(3)" defaultValueComputed="CURRENT_TIMESTAMP(3)"/>
+            <column name="updated_at" type="DATETIME(3)" defaultValueComputed="CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)"/>
+        </createTable>
+
+        <createTable tableName="sys_user_role" remarks="用户角色关联">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="sys_role_permission" remarks="角色权限关联">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="permission_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

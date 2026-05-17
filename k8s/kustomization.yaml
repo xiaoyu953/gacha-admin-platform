@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: gacha-system
+
+resources:
+  # Infrastructure
+  - base/namespace.yaml
+  - base/secret.yaml
+  - base/configmap.yaml
+  - base/infrastructure.yaml
+  - base/ingress.yaml
+
+  # Services
+  - auth-service/deployment.yaml
+  - auth-service/service.yaml
+  - gateway-service/deployment.yaml
+  - gateway-service/service.yaml
+  - frontend/deployment.yaml
+  - frontend/service.yaml
+
+images:
+  - name: registry.example.com/gacha/auth-service
+    newTag: latest
+  - name: registry.example.com/gacha/gateway-service
+    newTag: latest
+  - name: registry.example.com/gacha/admin-frontend
+    newTag: latest

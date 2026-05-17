@@ -1,0 +1,15 @@
+**/target/
+**/node_modules/
+**/dist/
+**/.git/
+**/.idea/
+**/*.iml
+**/.vscode/
+**/logs/
+**/*.log
+.env
+*.md
+.gitignore
+docker-compose*.yml
+k8s/
+ci/

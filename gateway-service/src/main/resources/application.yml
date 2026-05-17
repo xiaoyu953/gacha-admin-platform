@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
+        - id: auth-service-admin
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/admin/users/**,/api/admin/roles/**,/api/admin/permissions/**
+        - id: legacy-php
+          uri: http://localhost:8001
+          predicates:
+            - Path=/legacy-php/**
+          filters:
+            - StripPrefix=1

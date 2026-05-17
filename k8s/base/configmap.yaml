@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gacha-common-config
+  namespace: gacha-system
+data:
+  # Nacos
+  NACOS_SERVER_ADDR: "nacos-service.gacha-system:8848"
+  # MySQL (per-service overrides in their own env)
+  MYSQL_HOST: "mysql-service.gacha-system"
+  MYSQL_PORT: "3306"
+  # Redis
+  REDIS_HOST: "redis-service.gacha-system"
+  REDIS_PORT: "6379"
+  # JWT
+  JWT_ISSUER: "gacha-admin-platform"
+  # Log level
+  LOGGING_LEVEL_COM_GACHA: "INFO"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-routes
+  namespace: gacha-system
+data:
+  application.yml: |
+    spring:
+      cloud:
+        gateway:
+          routes:
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/auth/**
+            - id: admin-api
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/admin/**
+            - id: product-service
+              uri: lb://product-service
+              predicates:
+                - Path=/api/products/**
+            - id: order-service
+              uri: lb://order-service
+              predicates:
+                - Path=/api/orders/**
+            - id: machine-service
+              uri: lb://machine-service
+              predicates:
+                - Path=/api/machines/**
+            - id: activity-service
+              uri: lb://activity-service
+              predicates:
+                - Path=/api/activities/**,/api/coupons/**,/api/vip-cards/**,/api/credits/**
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/api/customers/**
+            - id: content-service
+              uri: lb://content-service
+              predicates:
+                - Path=/api/announcements/**,/api/banners/**,/api/topics/**,/api/comments/**
+            - id: trade-service
+              uri: lb://trade-service
+              predicates:
+                - Path=/api/channels/**,/api/flea-market/**,/api/adverts/**
