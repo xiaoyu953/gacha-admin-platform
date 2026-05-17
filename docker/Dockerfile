@@ -1,7 +1,7 @@
 # Multi-stage build for all Java services
 # Usage: docker build --build-arg SERVICE_NAME=auth-service -t gacha/auth-service:latest -f docker/Dockerfile .
 
-FROM maven:3.9-eclipse-temurin-17-alpine AS builder
+FROM --platform=linux/amd64 maven:3.9-eclipse-temurin-17-alpine AS builder
 ARG SERVICE_NAME
 WORKDIR /build
 
@@ -16,7 +16,7 @@ COPY ${SERVICE_NAME}/src ${SERVICE_NAME}/src/
 
 RUN mvn package -pl common-lib,${SERVICE_NAME} -DskipTests -q
 
-FROM eclipse-temurin:17-jre-alpine
+FROM --platform=linux/amd64 eclipse-temurin:17-jre-alpine
 ARG SERVICE_NAME
 WORKDIR /app
 
