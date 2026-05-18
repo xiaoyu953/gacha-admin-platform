@@ -51,4 +51,24 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="3" author="migration">
+        <createTable tableName="gacha_customer_blacklist" remarks="C端用户黑名单">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_id" type="INT" remarks="用户ID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="TINYINT" remarks="黑名单类型: 1抽奖/2First赏/3Last赏/4W赏">
+                <constraints nullable="false"/>
+            </column>
+            <column name="admin_id" type="INT" remarks="操作管理员ID"/>
+            <column name="created_at" type="DATETIME(3)"
+                    defaultValueComputed="CURRENT_TIMESTAMP(3)"/>
+        </createTable>
+        <createIndex tableName="gacha_customer_blacklist" indexName="idx_blacklist_customer">
+            <column name="customer_id"/>
+        </createIndex>
+    </changeSet>
+
 </databaseChangeLog>
